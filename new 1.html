@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Date Review Quiz</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #020617, #0f172a);
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .card {
+      position: relative;
+      background: #111827;
+      padding: 24px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      text-align: center;
+      z-index: 2;
+    }
+
+    h1 { margin-bottom: 12px; }
+
+    .question {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .rating button {
+      width: 60px;
+      margin: 4px;
+      font-size: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border-radius: 10px;
+      border: none;
+      padding: 10px;
+      margin-top: 10px;
+      resize: none;
+      font-family: Arial, sans-serif;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .secondary { background: #10b981; }
+
+    .result {
+      margin-top: 12px;
+      display: none;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<div class="card">
+  <h1>hi again bina...</h1>
+  <p style="font-size:14px; opacity:0.8;">yes its a review but u dont have to answer it if u dont want to...</p>
+
+  <button id="startBtn">lets start?</button>
+
+  <div id="quiz" style="display:none;">
+    <div class="question" id="question"></div>
+    <div id="answers"></div>
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <button class="secondary" id="restart" style="display:none"></button>
+</div>
+
+<script>
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwOGD538Yuky1SnGHQKQN9B9O0q5cfq9f75uSmJT5jD23It64vWyH3b7NYBKFOhFcbndQ/exec";
+
+const questions = [
+  { type: "rating", q: "did u enjoy our date? (1–5)" },
+  { type: "rating", q: "how fun for the talking? (1–5)" },
+  { type: "rating", q: "how comfortable did u feel with me? (1–5)" },
+  { type: "text", q: "which part that u like from our date and why?" },
+  { type: "text", q: "be honest, was there any part of our date that made you want to run away… or at least punch me on the head lmao" },
+  { type: "text", q: "is there going to be a second date? " }
+];
+
+let index = 0;
+let total = 0;
+let answers = [];
+
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const resultEl = document.getElementById("result");
+const restartBtn = document.getElementById("restart");
+const startBtn = document.getElementById("startBtn");
+
+function showQuestion() {
+  const current = questions[index];
+  questionEl.textContent = current.q;
+  answersEl.innerHTML = "";
+
+  if (current.type === "rating") {
+    const wrap = document.createElement("div");
+    wrap.className = "rating";
+
+    for (let i = 1; i <= 5; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.onclick = () => submitAnswer(i);
+      wrap.appendChild(btn);
+    }
+
+    answersEl.appendChild(wrap);
+  } else {
+    const textarea = document.createElement("textarea");
+    textarea.placeholder = "answer here..";
+
+    const btn = document.createElement("button");
+    btn.textContent = "send";
+    btn.onclick = () => submitAnswer(textarea.value || "(empty)");
+
+    answersEl.appendChild(textarea);
+    answersEl.appendChild(btn);
+  }
+}
+
+function submitAnswer(val) {
+  answers.push({ q: questions[index].q, a: val });
+
+  if (typeof val === "number") total += val;
+
+  index++;
+
+  if (index < questions.length) showQuestion();
+  else showResult();
+}
+
+function sendToGoogleSheets() {
+  if (!GOOGLE_SCRIPT_URL) return;
+
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      time: new Date().toISOString(),
+      score: total,
+      q1: answers[0]?.a ?? "",
+      q2: answers[1]?.a ?? "",
+      q3: answers[2]?.a ?? "",
+      like_part: answers[3]?.a ?? "",
+      uncomfortable_part: answers[4]?.a ?? "",
+      second_date: answers[5]?.a ?? ""
+    })
+  }).catch(err => console.log("sheet error", err));
+}
+
+function showResult() {
+  document.getElementById("quiz").style.display = "none";
+  resultEl.style.display = "block";
+  restartBtn.style.display = "block";
+
+  sendToGoogleSheets();
+
+  const maxScore = questions.filter(q => q.type === "rating").length * 5;
+  const highThreshold = maxScore * 0.8;
+  const midThreshold = maxScore * 0.6;
+
+  if (total >= highThreshold) {
+    resultEl.textContent = "";
+    restartBtn.textContent = "i'd promise u on the next date i will make the itinerary...";
+    launchFireworks(120);
+  } else if (total >= midThreshold) {
+    resultEl.textContent = "";
+    restartBtn.textContent = "maybe we try one more simple date?";
+    launchFireworks(70);
+  } else {
+    resultEl.textContent = "ik something off after u got home... but its okay tho thanks for ur time";
+    restartBtn.style.display = "none";
+    launchFireworks(10);
+  }
+}
+
+restartBtn.onclick = () => {
+  index = 0;
+  total = 0;
+  answers = [];
+  resultEl.style.display = "none";
+  restartBtn.style.display = "none";
+  document.getElementById("quiz").style.display = "none";
+  startBtn.style.display = "block";
+};
+
+startBtn.onclick = () => {
+  startBtn.style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+  showQuestion();
+};
+
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+let particles = [];
+
+function launchFireworks(amount) {
+  for (let i = 0; i < amount; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height / 2,
+      dx: (Math.random() - 0.5) * 4,
+      dy: (Math.random() - 0.5) * 4,
+      life: 80
+    });
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+    ctx.fillStyle = `hsl(${Math.random() * 360},100%,60%)`;
+    ctx.fill();
+
+    p.x += p.dx;
+    p.y += p.dy;
+    p.life--;
+  });
+
+  particles = particles.filter(p => p.life > 0);
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>
