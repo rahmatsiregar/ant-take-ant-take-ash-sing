@@ -1,86 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Date Review Quiz</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>hawooo</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #020617, #0f172a);
-      color: #f1f5f9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #020617, #0f172a);
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+}
 
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-    }
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
 
-    .card {
-      position: relative;
-      background: #111827;
-      padding: 24px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 460px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      text-align: center;
-      z-index: 2;
-    }
+.card {
+  position: relative;
+  background: #111827;
+  padding: 24px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  text-align: center;
+  z-index: 2;
+}
 
-    h1 { margin-bottom: 12px; }
+#pageGif {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  transition: opacity 0.3s ease;
+}
 
-    .question {
-      font-size: 18px;
-      margin-bottom: 16px;
-    }
+.question {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
 
-    .rating button {
-      width: 60px;
-      margin: 4px;
-      font-size: 16px;
-    }
+.rating button {
+  width: 60px;
+  margin: 4px;
+  font-size: 16px;
+}
 
-    textarea {
-      width: 100%;
-      min-height: 90px;
-      border-radius: 10px;
-      border: none;
-      padding: 10px;
-      margin-top: 10px;
-      resize: none;
-      font-family: Arial, sans-serif;
-    }
+textarea {
+  width: 100%;
+  min-height: 90px;
+  border-radius: 10px;
+  border: none;
+  padding: 10px;
+  margin-top: 10px;
+  resize: none;
+  font-family: Arial, sans-serif;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 10px;
-      background: #2563eb;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-    }
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
 
-    .secondary { background: #10b981; }
+.secondary { background: #10b981; }
 
-    .result {
-      margin-top: 12px;
-      display: none;
-      font-size: 16px;
-    }
-  </style>
+.result {
+  margin-top: 12px;
+  display: none;
+  font-size: 16px;
+}
+</style>
 </head>
 <body>
 
@@ -88,7 +95,13 @@
 
 <div class="card">
   <h1>hi again bina...</h1>
-  <p style="font-size:14px; opacity:0.8;">here we go again w/ this gaje html, but u dont have to answer it if u dont want to...</p>
+
+  <!-- GIF -->
+  <img id="pageGif" src="https://media.giphy.com/media/aE7wJrIV0qeLEKKrjn/giphy.gif" alt="gif">
+
+  <p style="font-size:14px; opacity:0.8;">
+    here we go again w/ this gaje html, but u dont have to answer it if u dont want to...
+  </p>
 
   <button id="startBtn">lets start?</button>
 
@@ -98,36 +111,74 @@
   </div>
 
   <div class="result" id="result"></div>
-
   <button class="secondary" id="restart" style="display:none"></button>
 </div>
 
 <script>
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwOGD538Yuky1SnGHQKQN9B9O0q5cfq9f75uSmJT5jD23It64vWyH3b7NYBKFOhFcbndQ/exec";
 
+/* ===========================
+   QUESTIONS WITH GIF
+=========================== */
+
 const questions = [
-  { type: "rating", q: "did u enjoy our date? (1–5)" },
-  { type: "rating", q: "fr? (1–5)" },
-  { type: "rating", q: "1 more, fr? (1–5)" },
-  { type: "text", q: "why?" },
-  { type: "text", q: "be honest, was there any part of our date that made you want to run away… or at least punch me on the head lmao" },
-  { type: "text", q: "u want another date? " }
+  { 
+    type: "rating", 
+    q: "did u enjoy our date? (1–5)",
+    gif: "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif"
+  },
+  { 
+    type: "rating", 
+    q: "fr? (1–5)",
+    gif: "https://media.giphy.com/media/n5iPVLeA1fvb0IYU5W/giphy.gif"
+  },
+  { 
+    type: "rating", 
+    q: "1 more, fr? (1–5)",
+    gif: "https://media.giphy.com/media/1ViLp0GBYhTcA/giphy.gif"
+  },
+  { 
+    type: "text", 
+    q: "why?",
+    gif: "https://media.giphy.com/media/13borq7Zo2kulO/giphy.gif"
+  },
+  { 
+    type: "text", 
+    q: "be honest, was there any part of our date that made you want to run away… or at least punch me on the head lmao",
+    gif: "https://media.giphy.com/media/paf7IOKOacbzPinHQC/giphy.gif"
+  },
+  { 
+    type: "text", 
+    q: "u want another date?",
+    gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExazg1OG5qNHBva2VjNmJ4NzY4a3J4ZXRjemx4YWhrbnY1d3h4ODZyYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/aE7wJrIV0qeLEKKrjn/giphy.gif"
+  }
 ];
 
 let index = 0;
 let total = 0;
 let answers = [];
 
+const pageGif = document.getElementById("pageGif");
 const questionEl = document.getElementById("question");
 const answersEl = document.getElementById("answers");
 const resultEl = document.getElementById("result");
 const restartBtn = document.getElementById("restart");
 const startBtn = document.getElementById("startBtn");
 
+function changeGif(url) {
+  pageGif.style.opacity = 0;
+  setTimeout(() => {
+    pageGif.src = url;
+    pageGif.style.opacity = 1;
+  }, 150);
+}
+
 function showQuestion() {
   const current = questions[index];
   questionEl.textContent = current.q;
   answersEl.innerHTML = "";
+
+  changeGif(current.gif);
 
   if (current.type === "rating") {
     const wrap = document.createElement("div");
@@ -156,33 +207,11 @@ function showQuestion() {
 
 function submitAnswer(val) {
   answers.push({ q: questions[index].q, a: val });
-
   if (typeof val === "number") total += val;
-
   index++;
 
   if (index < questions.length) showQuestion();
   else showResult();
-}
-
-function sendToGoogleSheets() {
-  if (!GOOGLE_SCRIPT_URL) return;
-
-  fetch(GOOGLE_SCRIPT_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      time: new Date().toISOString(),
-      score: total,
-      q1: answers[0]?.a ?? "",
-      q2: answers[1]?.a ?? "",
-      q3: answers[2]?.a ?? "",
-      like_part: answers[3]?.a ?? "",
-      uncomfortable_part: answers[4]?.a ?? "",
-      second_date: answers[5]?.a ?? ""
-    })
-  }).catch(err => console.log("sheet error", err));
 }
 
 function showResult() {
@@ -190,42 +219,31 @@ function showResult() {
   resultEl.style.display = "block";
   restartBtn.style.display = "block";
 
-  sendToGoogleSheets();
+  changeGif("https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif");
 
   const maxScore = questions.filter(q => q.type === "rating").length * 5;
   const highThreshold = maxScore * 0.8;
-  const midThreshold = maxScore * 0.6;
 
   if (total >= highThreshold) {
-    resultEl.textContent = "";
     restartBtn.textContent = "i'd promise u on the next date i will make the itinerary...";
     launchFireworks(120);
-  } else if (total >= midThreshold) {
-    resultEl.textContent = "";
-    restartBtn.textContent = "maybe we try one more simple date?";
-    launchFireworks(70);
   } else {
-    resultEl.textContent = "ik something off after u got home... but its okay tho thanks for ur time";
-    restartBtn.style.display = "none";
-    launchFireworks(10);
+    resultEl.textContent = "thanks for answering honestly.";
+    launchFireworks(40);
   }
 }
 
-restartBtn.onclick = () => {
-  index = 0;
-  total = 0;
-  answers = [];
-  resultEl.style.display = "none";
-  restartBtn.style.display = "none";
-  document.getElementById("quiz").style.display = "none";
-  startBtn.style.display = "block";
-};
+restartBtn.onclick = () => location.reload();
 
 startBtn.onclick = () => {
   startBtn.style.display = "none";
   document.getElementById("quiz").style.display = "block";
   showQuestion();
 };
+
+/* ===========================
+   FIREWORKS
+=========================== */
 
 const canvas = document.getElementById("fireworks");
 const ctx = canvas.getContext("2d");
@@ -259,7 +277,6 @@ function animate() {
     ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
     ctx.fillStyle = `hsl(${Math.random() * 360},100%,60%)`;
     ctx.fill();
-
     p.x += p.dx;
     p.y += p.dy;
     p.life--;
@@ -273,5 +290,3 @@ animate();
 
 </body>
 </html>
-
-
